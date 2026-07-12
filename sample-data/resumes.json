@@ -1,0 +1,637 @@
+[
+  {
+    "id": "sample-resume-01",
+    "synthetic": true,
+    "name": "Avery Rivera",
+    "email": "avery.rivera@example.com",
+    "location": "Austin, TX",
+    "headline": "Senior Software Engineer candidate",
+    "yearsExperience": 4,
+    "skills": [
+      "Communication",
+      "Problem Solving"
+    ],
+    "summary": "Synthetic demo resume for a Senior Software Engineer role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Cedar Systems",
+        "title": "Senior Senior Software Engineer",
+        "years": 4,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 1,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "0f7d2e8f-752e-4d4c-b565-bdb0fe03943e"
+  },
+  {
+    "id": "sample-resume-02",
+    "synthetic": true,
+    "name": "Jordan Morgan",
+    "email": "jordan.morgan@example.com",
+    "location": "New York, NY",
+    "headline": "Sr. Growth Marketer candidate",
+    "yearsExperience": 10,
+    "skills": [
+      "growth marketing",
+      "SEO",
+      "content creation",
+      "community engagement",
+      "public speaking",
+      "strategic thinking",
+      "analytical skills",
+      "Communication"
+    ],
+    "summary": "Synthetic demo resume for a Sr. Growth Marketer role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Brightline Studio",
+        "title": "Senior Sr. Growth Marketer",
+        "years": 5,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 5,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "0df05897-84ac-405d-8fe6-3241a8c6ad21"
+  },
+  {
+    "id": "sample-resume-03",
+    "synthetic": true,
+    "name": "Morgan Chen",
+    "email": "morgan.chen@example.com",
+    "location": "Austin, TX",
+    "headline": "Design Program Manager candidate",
+    "yearsExperience": 8,
+    "skills": [
+      "design program management",
+      "design operations",
+      "product operations",
+      "technical program management",
+      "product design",
+      "cross-functional collaboration",
+      "Agile methodologies",
+      "project management"
+    ],
+    "summary": "Synthetic demo resume for a Design Program Manager role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Brightline Studio",
+        "title": "Senior Design Program Manager",
+        "years": 5,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 3,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "6146d512-7dd5-4813-a79d-b8419bf6587e"
+  },
+  {
+    "id": "sample-resume-04",
+    "synthetic": true,
+    "name": "Riley Patel",
+    "email": "riley.patel@example.com",
+    "location": "Seattle, WA",
+    "headline": "Software Development Engineer III (Fullstack) - Contacts candidate",
+    "yearsExperience": 5,
+    "skills": [
+      "Software Development",
+      "Fullstack Development",
+      "CRM Systems",
+      "Scalability",
+      "Reliability",
+      "Communication",
+      "Problem Solving"
+    ],
+    "summary": "Synthetic demo resume for a Software Development Engineer III (Fullstack) - Contacts role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Brightline Studio",
+        "title": "Senior Software Development Engineer III (Fullstack) - Contacts",
+        "years": 5,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 1,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "d56c64b7-dd9a-4660-8ac6-1e380b9538f3"
+  },
+  {
+    "id": "sample-resume-05",
+    "synthetic": true,
+    "name": "Casey Nguyen",
+    "email": "casey.nguyen@example.com",
+    "location": "New York, NY",
+    "headline": "Implementation Advisor candidate",
+    "yearsExperience": 8,
+    "skills": [
+      "business process management",
+      "change management",
+      "software technologies",
+      "customer relationship management",
+      "Communication",
+      "Problem Solving"
+    ],
+    "summary": "Synthetic demo resume for a Implementation Advisor role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Cedar Systems",
+        "title": "Senior Implementation Advisor",
+        "years": 5,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 3,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "ff2ad979-17a1-42d7-b206-96b9025b753d"
+  },
+  {
+    "id": "sample-resume-06",
+    "synthetic": true,
+    "name": "Taylor Brooks",
+    "email": "taylor.brooks@example.com",
+    "location": "Austin, TX",
+    "headline": "Field Marketing Representative candidate",
+    "yearsExperience": 7,
+    "skills": [
+      "Event Coordination",
+      "Brand Representation",
+      "Communication",
+      "Customer Engagement",
+      "Travel Management",
+      "Problem Solving"
+    ],
+    "summary": "Synthetic demo resume for a Field Marketing Representative role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Brightline Studio",
+        "title": "Senior Field Marketing Representative",
+        "years": 5,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 2,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "0d91f66d-3cd2-4cf7-816b-15c6a738d846"
+  },
+  {
+    "id": "sample-resume-07",
+    "synthetic": true,
+    "name": "Cameron Foster",
+    "email": "cameron.foster@example.com",
+    "location": "Toronto, Canada",
+    "headline": "Staff Product Manager - Product Information Management candidate",
+    "yearsExperience": 10,
+    "skills": [
+      "Product Management",
+      "Catalog Systems Expertise",
+      "API Design",
+      "Data Modeling",
+      "Cross-Functional Collaboration",
+      "Ownership",
+      "Communication",
+      "Problem Solving"
+    ],
+    "summary": "Synthetic demo resume for a Staff Product Manager - Product Information Management role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Atlas Works",
+        "title": "Senior Staff Product Manager - Product Information Management",
+        "years": 5,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 5,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "3f9fe900-c62d-4ea6-9712-ad184a3ff7e1"
+  },
+  {
+    "id": "sample-resume-08",
+    "synthetic": true,
+    "name": "Quinn Ellis",
+    "email": "quinn.ellis@example.com",
+    "location": "Austin, TX",
+    "headline": "Staff Analytics Engineer \u2013 Customer Data Platform candidate",
+    "yearsExperience": 6,
+    "skills": [
+      "Communication",
+      "Problem Solving"
+    ],
+    "summary": "Synthetic demo resume for a Staff Analytics Engineer \u2013 Customer Data Platform role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Atlas Works",
+        "title": "Senior Staff Analytics Engineer \u2013 Customer Data Platform",
+        "years": 5,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 1,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "43175708-62eb-4410-8393-4ee3cb1d2730"
+  },
+  {
+    "id": "sample-resume-09",
+    "synthetic": true,
+    "name": "Reese Santos",
+    "email": "reese.santos@example.com",
+    "location": "Seattle, WA",
+    "headline": "Customer Retention Specialist candidate",
+    "yearsExperience": 4,
+    "skills": [
+      "Communication",
+      "Problem Solving"
+    ],
+    "summary": "Synthetic demo resume for a Customer Retention Specialist role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Cedar Systems",
+        "title": "Senior Customer Retention Specialist",
+        "years": 4,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 1,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "9da8258c-2e1e-49c8-afa9-98dfb74fe203"
+  },
+  {
+    "id": "sample-resume-10",
+    "synthetic": true,
+    "name": "Parker Kim",
+    "email": "parker.kim@example.com",
+    "location": "Seattle, WA",
+    "headline": "Sr. Director, Product Design candidate",
+    "yearsExperience": 5,
+    "skills": [
+      "Product Design",
+      "UX",
+      "Design Leadership",
+      "B2B SaaS",
+      "Design System Development",
+      "Team Management",
+      "Visual Design",
+      "Interaction Design"
+    ],
+    "summary": "Synthetic demo resume for a Sr. Director, Product Design role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Atlas Works",
+        "title": "Senior Sr. Director, Product Design",
+        "years": 5,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 1,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "1adc3097-fe4c-4be2-b893-e6bf2f78d523"
+  },
+  {
+    "id": "sample-resume-11",
+    "synthetic": true,
+    "name": "Rowan Diaz",
+    "email": "rowan.diaz@example.com",
+    "location": "Seattle, WA",
+    "headline": "Manager, Events candidate",
+    "yearsExperience": 7,
+    "skills": [
+      "Event Planning",
+      "Event Management",
+      "Budget Management",
+      "Team Leadership",
+      "Project Management",
+      "Strategic Planning",
+      "Vendor Management",
+      "Stakeholder Management"
+    ],
+    "summary": "Synthetic demo resume for a Manager, Events role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Brightline Studio",
+        "title": "Senior Manager, Events",
+        "years": 5,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 2,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "8db21a92-3835-4ea5-9cb6-3547e7bd425c"
+  },
+  {
+    "id": "sample-resume-12",
+    "synthetic": true,
+    "name": "Skyler Reed",
+    "email": "skyler.reed@example.com",
+    "location": "Remote",
+    "headline": "Staff Product Manager - Phone Numbers and A2P candidate",
+    "yearsExperience": 6,
+    "skills": [
+      "Product Management",
+      "A2P Messaging",
+      "Compliance",
+      "Telecommunications",
+      "Stakeholder Management",
+      "Analytical Skills",
+      "Communication Skills",
+      "Communication"
+    ],
+    "summary": "Synthetic demo resume for a Staff Product Manager - Phone Numbers and A2P role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Northstar Labs",
+        "title": "Senior Staff Product Manager - Phone Numbers and A2P",
+        "years": 5,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 1,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "d284ed0d-a53c-4ac3-9704-32888783f3b7"
+  },
+  {
+    "id": "sample-resume-13",
+    "synthetic": true,
+    "name": "Emerson Owens",
+    "email": "emerson.owens@example.com",
+    "location": "Austin, TX",
+    "headline": "Director of Partnerships candidate",
+    "yearsExperience": 8,
+    "skills": [
+      "partnership management",
+      "communication",
+      "executive collaboration",
+      "revenue growth",
+      "strategic alliances",
+      "Communication",
+      "Problem Solving"
+    ],
+    "summary": "Synthetic demo resume for a Director of Partnerships role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Signal Forge",
+        "title": "Senior Director of Partnerships",
+        "years": 5,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 3,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "201a7195-3d67-4abe-87c5-11ffa180da81"
+  },
+  {
+    "id": "sample-resume-14",
+    "synthetic": true,
+    "name": "Hayden Bailey",
+    "email": "hayden.bailey@example.com",
+    "location": "Austin, TX",
+    "headline": "Corporate FP&amp;A Manager candidate",
+    "yearsExperience": 4,
+    "skills": [
+      "FP&A",
+      "financial analysis",
+      "reporting",
+      "forecasting",
+      "SaaS",
+      "Communication",
+      "Problem Solving"
+    ],
+    "summary": "Synthetic demo resume for a Corporate FP&amp;A Manager role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Brightline Studio",
+        "title": "Senior Corporate FP&amp;A Manager",
+        "years": 4,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 1,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "e0fc9c4f-05dd-48ec-8864-ad1fea3d5d20"
+  },
+  {
+    "id": "sample-resume-15",
+    "synthetic": true,
+    "name": "Blake Hayes",
+    "email": "blake.hayes@example.com",
+    "location": "Austin, TX",
+    "headline": "Sr. Product Manager - Phone Platform candidate",
+    "yearsExperience": 8,
+    "skills": [
+      "Product Management",
+      "SaaS",
+      "Fintech",
+      "Telecom",
+      "CPaaS",
+      "Data Analysis",
+      "SQL",
+      "BI Tools"
+    ],
+    "summary": "Synthetic demo resume for a Sr. Product Manager - Phone Platform role. This record contains no real applicant data.",
+    "experience": [
+      {
+        "company": "Signal Forge",
+        "title": "Senior Sr. Product Manager - Phone Platform",
+        "years": 5,
+        "highlights": [
+          "Delivered production features with a cross-functional team.",
+          "Improved reliability and developer workflow through automation."
+        ]
+      },
+      {
+        "company": "Demo Product Co.",
+        "title": "Software Engineer",
+        "years": 3,
+        "highlights": [
+          "Built and maintained customer-facing product capabilities."
+        ]
+      }
+    ],
+    "education": {
+      "institution": "Example University",
+      "degree": "B.S. Computer Science"
+    },
+    "targetJobExternalId": "14d569ff-747a-4f46-86b7-64a0120d021c"
+  }
+]
