@@ -105,7 +105,7 @@ export const markCompleted = internalMutation({
 
 export const complete = action({
   args: { sessionId: v.string() },
-  handler: async (ctx, args): Promise<{ publicId: string; skills?: string[]; targetRoles?: string[]; embeddingStatus?: string }> => {
+  handler: async (ctx, args): Promise<{ publicId: string; skills?: string[]; targetRoles?: string[] }> => {
     const session = await ctx.runQuery(internal.intake.getForCompletion, args);
     if (!session) throw new Error("Intake session not found");
     if (session.applicantPublicId) return { publicId: session.applicantPublicId };
@@ -120,7 +120,6 @@ export const complete = action({
       experienceYears: fields.experienceYears,
     });
     await ctx.runMutation(internal.intake.markCompleted, { sessionId: args.sessionId, applicantPublicId: created.publicId });
-    const embedding = await ctx.runAction(api.applicants.embed, { publicId: created.publicId });
-    return { ...created, embeddingStatus: embedding.status };
+    return created;
   },
 });

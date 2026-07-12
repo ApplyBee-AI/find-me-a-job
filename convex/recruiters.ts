@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { recruiterFromJob } from "./lib/jobNormalization";
 import { isCanonicalJob, rankCandidatesForRecruiter } from "./lib/matching";
 
 export const list = query({
@@ -16,22 +17,12 @@ export const syncFromJobs = mutation({
     let inserted = 0;
     let updated = 0;
     for (const job of jobs) {
-      const publicId = `recruiter:${job.publicId}`;
-      const record = {
-        publicId,
-        company: job.company,
-        roleToHire: job.title,
-        prioritySkills: job.skills,
-        niceToHave: [],
-        story: job.summary ?? job.description ?? "Stored job requirements.",
-        location: job.location,
-        workMode: job.workMode ?? "Unspecified",
-        interviewFocus: job.skills.slice(0, 4),
-        jobPublicId: job.publicId ?? publicId,
-        source: "job" as const,
-        updatedAt: Date.now(),
-      };
-      const existing = await ctx.db.query("recruiters").withIndex("by_public_id", (q) => q.eq("publicId", publicId)).unique();
+      const record = recruiterFromJob({
+        ...job,
+        publicId: job.publicId!,
+        description: job.description!,
+      }, Date.now());
+      const existing = await ctx.db.query("recruiters").withIndex("by_public_id", (q) => q.eq("publicId", record.publicId)).unique();
       if (existing) {
         await ctx.db.patch("recruiters", existing._id, record);
         updated += 1;
