@@ -1,4 +1,4 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, env } from "./_generated/server";
 import { v } from "convex/values";
 import { rankCandidatesForRecruiter } from "./lib/matching";
 
@@ -15,6 +15,13 @@ const recruiterFields = {
   interviewFocus: v.array(v.string()),
   isExample: v.optional(v.boolean()),
   sourceKind: v.optional(v.string()),
+};
+
+const requireImportAdmin = (importToken: string) => {
+  const configuredToken = (env as unknown as { IMPORT_ADMIN_TOKEN?: string }).IMPORT_ADMIN_TOKEN;
+  if (!configuredToken || importToken !== configuredToken) {
+    throw new Error("Unauthorized import.");
+  }
 };
 
 export const list = query({
@@ -35,8 +42,15 @@ export const getByPublicId = query({
 });
 
 export const importDemoRecruiters = mutation({
-  args: { recruiters: v.array(v.object(recruiterFields)) },
+  args: {
+    importToken: v.string(),
+    recruiters: v.array(v.object(recruiterFields)),
+  },
   handler: async (ctx, args) => {
+    requireImportAdmin(args.importToken);
+    if (args.recruiters.length === 0 || args.recruiters.length > 20) {
+      throw new Error("Import batch must contain between 1 and 20 recruiters.");
+    }
     let imported = 0;
     let updated = 0;
 

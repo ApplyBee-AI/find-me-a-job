@@ -1,6 +1,7 @@
 import * as assert from "node:assert/strict";
 import test from "node:test";
 import {
+  assertSanitizedImportProfiles,
   buildEmbeddingInputs,
   createEmbeddingClient,
 } from "../scripts/import-public-resume-examples.mjs";
@@ -18,6 +19,31 @@ test("builds safe applicant embedding inputs from profile fields", () => {
   assert.deepEqual(inputs, [
     "Target roles: Software Engineer\nSkills: Python, SQL\nResume:\nEDUCATION\nProjects: API development",
   ]);
+});
+
+test("rejects unsanitized or unprovenanced applicant payloads before embedding", () => {
+  assert.throws(
+    () => assertSanitizedImportProfiles([{
+      sourceKind: "public-educational-example",
+      sourceId: "example_01",
+      sourceUrl: "https://example.edu/resume.pdf",
+      sourcePage: 1,
+      sourceChecksum: "checksum",
+      resumeText: "EDUCATION\nReach me at person@example.com",
+    }]),
+    /contact detail/i,
+  );
+  assert.throws(
+    () => assertSanitizedImportProfiles([{
+      sourceKind: "untrusted",
+      sourceId: "example_01",
+      sourceUrl: "https://example.edu/resume.pdf",
+      sourcePage: 1,
+      sourceChecksum: "checksum",
+      resumeText: "EDUCATION\nComputer Science",
+    }]),
+    /provenance/i,
+  );
 });
 
 test("sends the configured embedding model and returns vectors", async () => {

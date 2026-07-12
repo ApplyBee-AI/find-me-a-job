@@ -97,9 +97,14 @@ const readConvexUrl = () => {
 
 const run = async () => {
   const convexUrl = readConvexUrl();
+  const importToken = process.env.IMPORT_ADMIN_TOKEN;
   if (!convexUrl) throw new Error("CONVEX_URL is required in .env.local or the process environment.");
+  if (!importToken) throw new Error("IMPORT_ADMIN_TOKEN is required in the process environment.");
   const client = new ConvexHttpClient(convexUrl);
-  const result = await client.mutation("recruiters:importDemoRecruiters", { recruiters: demoRecruiters });
+  const result = await client.mutation("recruiters:importDemoRecruiters", {
+    importToken,
+    recruiters: demoRecruiters,
+  });
   console.log(JSON.stringify(result, null, 2));
 };
 

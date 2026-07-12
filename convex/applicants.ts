@@ -28,6 +28,13 @@ const applicantFields = {
   sourceChecksum: v.optional(v.string()),
 };
 
+const requireImportAdmin = (importToken: string) => {
+  const configuredToken = (env as unknown as { IMPORT_ADMIN_TOKEN?: string }).IMPORT_ADMIN_TOKEN;
+  if (!configuredToken || importToken !== configuredToken) {
+    throw new Error("Unauthorized import.");
+  }
+};
+
 export const list = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
@@ -88,8 +95,15 @@ export const upsertApplicant = mutation({
 });
 
 export const importPublicExamples = mutation({
-  args: { applicants: v.array(v.object(applicantFields)) },
+  args: {
+    importToken: v.string(),
+    applicants: v.array(v.object(applicantFields)),
+  },
   handler: async (ctx, args) => {
+    requireImportAdmin(args.importToken);
+    if (args.applicants.length === 0 || args.applicants.length > 20) {
+      throw new Error("Import batch must contain between 1 and 20 applicants.");
+    }
     let imported = 0;
     let updated = 0;
 

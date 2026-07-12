@@ -3,6 +3,49 @@ import { fileURLToPath } from "node:url";
 import { ConvexHttpClient } from "convex/browser";
 
 const embeddingEndpoint = "https://api.openai.com/v1/embeddings";
+const MAX_IMPORT_BATCH = 20;
+const MAX_RESUME_TEXT_LENGTH = 16_000;
+const EMAIL = /\b[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}\b/;
+const PHONE = /(?:\+?\d[\d().\-\s]{6,}\d)/;
+const URL = /(?:https?:\/\/|www\.|linkedin\.com\/|github\.com\/)\S+/i;
+
+export const assertSanitizedImportProfiles = (applicants) => {
+  if (!Array.isArray(applicants) || applicants.length === 0 || applicants.length > MAX_IMPORT_BATCH) {
+    throw new Error(`Import must contain between 1 and ${MAX_IMPORT_BATCH} applicant profiles.`);
+  }
+
+  for (const applicant of applicants) {
+    if (
+      applicant.sourceKind !== "public-educational-example"
+      || !applicant.sourceId
+      || !applicant.sourceChecksum
+      || !Number.isInteger(applicant.sourcePage)
+      || applicant.sourcePage < 1
+      || typeof applicant.sourceUrl !== "string"
+      || !applicant.sourceUrl.startsWith("https://")
+    ) {
+      throw new Error("Applicant import has invalid provenance.");
+    }
+    if (typeof applicant.resumeText !== "string" || applicant.resumeText.length === 0 || applicant.resumeText.length > MAX_RESUME_TEXT_LENGTH) {
+      throw new Error("Applicant import has invalid resume text.");
+    }
+    if (EMAIL.test(applicant.resumeText) || PHONE.test(applicant.resumeText) || URL.test(applicant.resumeText)) {
+      throw new Error("Applicant import resume text contains contact detail.");
+    }
+  }
+};
+
+const assertEmbeddingVectors = (records) => {
+  for (const record of records) {
+    if (
+      !Array.isArray(record.embedding)
+      || record.embedding.length !== 1536
+      || record.embedding.some((value) => !Number.isFinite(value))
+    ) {
+      throw new Error("Embedding must contain 1536 finite numeric values.");
+    }
+  }
+};
 
 export const buildEmbeddingInputs = (applicants) => applicants.map((applicant) => [
   `Target roles: ${applicant.targetRoles.join(", ")}`,
@@ -37,14 +80,20 @@ export const createEmbeddingClient = (fetchImpl, apiKey, model) => async (inputs
 };
 
 const readEnvironment = () => {
-  const envPath = new URL("../.env.local", import.meta.url);
-  const values = {};
-  for (const line of readFileSync(envPath, "utf8").split(/\r?\n/)) {
-    if (!line || line.startsWith("#") || !line.includes("=")) continue;
-    const [key, value] = line.split(/=(.*)/s);
-    values[key] = value.replace(/^['"]|['"]$/g, "");
+  if (process.env.CONVEX_URL) return {};
+  try {
+    const envPath = new URL("../.env.local", import.meta.url);
+    const values = {};
+    for (const line of readFileSync(envPath, "utf8").split(/\r?\n/)) {
+      if (!line || line.startsWith("#") || !line.includes("=")) continue;
+      const [key, value] = line.split(/=(.*)/s);
+      values[key] = value.replace(/^['"]|['"]$/g, "");
+    }
+    return values;
+  } catch (error) {
+    if (error?.code === "ENOENT") return {};
+    throw error;
   }
-  return values;
 };
 
 const chunk = (values, size) => {
@@ -58,15 +107,15 @@ const chunk = (values, size) => {
 const run = async () => {
   const inputPath = process.argv[2] ?? ".tmp/public-resume-applicants.json";
   const applicants = JSON.parse(readFileSync(inputPath, "utf8"));
-  if (!Array.isArray(applicants) || applicants.length === 0) {
-    throw new Error("Input must be a non-empty JSON array of applicant records.");
-  }
+  assertSanitizedImportProfiles(applicants);
 
   const environment = readEnvironment();
   const apiKey = process.env.OPENAI_API_KEY;
+  const importToken = process.env.IMPORT_ADMIN_TOKEN;
   const convexUrl = process.env.CONVEX_URL ?? environment.CONVEX_URL;
   const model = process.env.OPENAI_EMBEDDING_MODEL ?? "text-embedding-3-small";
   if (!apiKey) throw new Error("OPENAI_API_KEY is required in the process environment.");
+  if (!importToken) throw new Error("IMPORT_ADMIN_TOKEN is required in the process environment.");
   if (!convexUrl) throw new Error("CONVEX_URL is required in .env.local or the process environment.");
 
   const embed = createEmbeddingClient(fetch, apiKey, model);
@@ -81,8 +130,12 @@ const run = async () => {
     })));
   }
 
+  assertEmbeddingVectors(records);
   const client = new ConvexHttpClient(convexUrl);
-  const result = await client.mutation("applicants:importPublicExamples", { applicants: records });
+  const result = await client.mutation("applicants:importPublicExamples", {
+    importToken,
+    applicants: records,
+  });
   console.log(JSON.stringify({
     imported: result.imported,
     updated: result.updated,
