@@ -7,6 +7,7 @@
     "codegen": "convex dev --once",
     "deploy": "convex deploy",
     "seed": "convex run seed:seedDemo",
+    "test:applicant-api": "node scripts/smoke-applicant-api.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

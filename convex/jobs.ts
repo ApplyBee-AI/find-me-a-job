@@ -11,9 +11,18 @@ export const list = query({
 export const getByPublicId = query({
   args: { publicId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const legacyJob = await ctx.db
       .query("jobs")
       .withIndex("by_public_id", (q) => q.eq("publicId", args.publicId))
+      .unique();
+
+    if (legacyJob) {
+      return legacyJob;
+    }
+
+    return await ctx.db
+      .query("jobs")
+      .withIndex("by_external_id", (q) => q.eq("externalId", args.publicId))
       .unique();
   },
 });

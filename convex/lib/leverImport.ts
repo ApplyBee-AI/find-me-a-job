@@ -37,82 +37,73 @@ export type LeverJobInput = {
 };
 
 export type ImportedLeverJob = {
-  publicId: string;
+  externalId: string;
   platform: "lever";
-  externalJobId: string;
   company: string;
   title: string;
   location: string;
-  workMode: string;
-  skills: string[];
-  experienceLevel: string;
-  minYearsExperience: number;
+  jobUrl: string;
+  applicationLink: string;
   description: string;
-  applyUrl: string;
-  highlights: string[];
+  summary: string;
+  requirements: string;
+  skills: string[];
+  jobType: string;
+  employmentType: string;
+  seniorityLevel: string;
+  experienceLevel: string;
+  isRemote: boolean;
+  sectorTags: string[];
+  isExternal: boolean;
+  postedDate: string;
+  scrapedAt: string;
+  isActive: boolean;
+  extraData: LeverJobInput["extra_data"];
+  embedding: number[] | null;
+  minYearsExperience?: number;
+  maxYearsExperience?: number;
   salaryRange?: string;
   minSalary?: number;
   maxSalary?: number;
-  employmentType?: string;
-  seniorityLevel?: string;
-  postedDate?: string;
-  isRemote?: boolean;
   latitude?: number;
   longitude?: number;
-  requirements?: string;
-  summary?: string;
-  maxYearsExperience?: number;
-  isActive: boolean;
-  scrapedAt: string;
-  sourceMetadataJson: string;
-  embedding: number[] | null;
-  embeddingModel?: string;
-  embeddingVersion?: string;
 };
 
 const present = <T>(value: T | null | undefined): value is T => value !== null && value !== undefined;
 
 export const mapLeverJob = (
   job: LeverJobInput,
-  metadata: { embeddingModel?: string; embeddingVersion?: string } = {},
 ): ImportedLeverJob => ({
-  publicId: `lever:${job.job_id_external}`,
+  externalId: job.job_id_external,
   platform: "lever",
-  externalJobId: job.job_id_external,
   company: job.company,
   title: job.job_title,
   location: job.location,
-  workMode: job.extra_data.work_mode,
-  skills: Array.from(new Set(job.skills)),
-  experienceLevel: job.experience_level,
-  minYearsExperience: job.min_years_experience ?? 0,
+  jobUrl: job.job_url,
+  applicationLink: job.application_link || job.job_url,
   description: job.description,
-  applyUrl: job.application_link || job.job_url,
-  highlights: [job.summary, job.requirements].filter(Boolean),
+  summary: job.summary,
+  requirements: job.requirements,
+  skills: Array.from(new Set(job.skills)),
+  jobType: job.job_type,
+  employmentType: job.employment_type,
+  seniorityLevel: job.seniority_level,
+  experienceLevel: job.experience_level,
+  isRemote: job.is_remote,
+  sectorTags: job.sector_tags,
+  isExternal: job.is_external,
+  postedDate: job.posted_date ?? "",
+  scrapedAt: job.scraped_at,
+  isActive: job.is_active,
+  extraData: job.extra_data,
+  embedding: job.embedding,
+  ...(present(job.min_years_experience) ? { minYearsExperience: job.min_years_experience } : {}),
+  ...(present(job.max_years_experience) ? { maxYearsExperience: job.max_years_experience } : {}),
   ...(job.salary_range ? { salaryRange: job.salary_range } : {}),
   ...(present(job.min_salary) ? { minSalary: job.min_salary } : {}),
   ...(present(job.max_salary) ? { maxSalary: job.max_salary } : {}),
-  ...(job.employment_type ? { employmentType: job.employment_type } : {}),
-  ...(job.seniority_level ? { seniorityLevel: job.seniority_level } : {}),
-  ...(job.posted_date ? { postedDate: job.posted_date } : {}),
-  isRemote: job.is_remote,
   ...(present(job.latitude) ? { latitude: job.latitude } : {}),
   ...(present(job.longitude) ? { longitude: job.longitude } : {}),
-  ...(job.requirements ? { requirements: job.requirements } : {}),
-  ...(job.summary ? { summary: job.summary } : {}),
-  ...(present(job.max_years_experience) ? { maxYearsExperience: job.max_years_experience } : {}),
-  isActive: job.is_active,
-  scrapedAt: job.scraped_at,
-  sourceMetadataJson: JSON.stringify({
-    sourceId: job.id,
-    jobUrl: job.job_url,
-    sectorTags: job.sector_tags,
-    isExternal: job.is_external,
-    extraData: job.extra_data,
-  }),
-  embedding: job.embedding,
-  ...(metadata.embeddingModel ? { embeddingModel: metadata.embeddingModel } : {}),
-  ...(metadata.embeddingVersion ? { embeddingVersion: metadata.embeddingVersion } : {}),
 });
 
 const comparable = (job: ImportedLeverJob) => JSON.stringify(job);

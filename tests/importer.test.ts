@@ -1,5 +1,5 @@
 import * as assert from "node:assert/strict";
-import * as test from "node:test";
+import test from "node:test";
 import {
   classifyUpsert,
   mapLeverJob,
@@ -40,17 +40,17 @@ const leverJob: LeverJobInput = {
   embedding: [0.12, -0.34],
 };
 
-test("maps canonical Lever output without dropping null-capable embedding data", () => {
-  const mapped = mapLeverJob(leverJob, { embeddingModel: "text-embedding-3-small" });
+test("maps canonical Lever output to the shared Convex jobs schema", () => {
+  const mapped = mapLeverJob(leverJob);
 
-  assert.equal(mapped.publicId, "lever:lever-123");
+  assert.equal(mapped.externalId, "lever-123");
   assert.equal(mapped.platform, "lever");
-  assert.equal(mapped.externalJobId, "lever-123");
-  assert.equal(mapped.workMode, "Hybrid");
+  assert.equal(mapped.applicationLink, leverJob.application_link);
+  assert.equal(mapped.jobUrl, leverJob.job_url);
   assert.equal(mapped.minYearsExperience, 3);
   assert.deepEqual(mapped.embedding, [0.12, -0.34]);
-  assert.equal(mapped.embeddingModel, "text-embedding-3-small");
-  assert.equal(mapped.sourceMetadataJson, JSON.stringify(leverJob.extra_data));
+  assert.deepEqual(mapped.extraData, leverJob.extra_data);
+  assert.equal("sourceMetadataJson" in mapped, false);
 });
 
 test("classifies an import as inserted, updated, or skipped deterministically", () => {

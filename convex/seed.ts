@@ -1,6 +1,6 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { applicants, jobs, recruiters } from "./lib/seedData";
+import { applicants, recruiters } from "./lib/seedData";
 
 export const seedDemo = mutation({
   args: { force: v.optional(v.boolean()) },
@@ -16,10 +16,6 @@ export const seedDemo = mutation({
         await ctx.db.delete("sessions", row._id);
       }
 
-      const jobRows = await ctx.db.query("jobs").take(256);
-      for (const row of jobRows) {
-        await ctx.db.delete("jobs", row._id);
-      }
 
       const applicantRows = await ctx.db.query("applicants").take(256);
       for (const row of applicantRows) {
@@ -32,16 +28,6 @@ export const seedDemo = mutation({
       }
     }
 
-    for (const job of jobs) {
-      const existing = await ctx.db
-        .query("jobs")
-        .withIndex("by_public_id", (q) => q.eq("publicId", job.publicId))
-        .unique();
-
-      if (!existing) {
-        await ctx.db.insert("jobs", job);
-      }
-    }
 
     for (const applicant of applicants) {
       const existing = await ctx.db
@@ -67,7 +53,7 @@ export const seedDemo = mutation({
 
     return {
       seeded: true,
-      jobs: jobs.length,
+      jobs: "existing shared jobs table preserved",
       applicants: applicants.length,
       recruiters: recruiters.length,
     };
