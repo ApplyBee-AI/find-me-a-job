@@ -1,12 +1,35 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { recruiterFromJob } from "./lib/jobNormalization";
+import { buildManualRecruiter } from "./lib/recruiterProfile";
 import { isCanonicalJob, rankCandidatesForRecruiter } from "./lib/matching";
 
 export const list = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
     return await ctx.db.query("recruiters").order("asc").take(args.limit ?? 20);
+  },
+});
+
+export const createManual = mutation({
+  args: {
+    company: v.string(),
+    roleToHire: v.string(),
+    prioritySkills: v.array(v.string()),
+    niceToHave: v.optional(v.array(v.string())),
+    story: v.string(),
+    location: v.string(),
+    workMode: v.string(),
+    interviewFocus: v.optional(v.array(v.string())),
+  },
+  handler: async (ctx, args) => {
+    if (args.company.trim().length < 2) throw new Error("Please provide a company name.");
+    if (args.roleToHire.trim().length < 2) throw new Error("Please provide the role to hire.");
+    if (args.prioritySkills.length === 0) throw new Error("Add at least one priority skill.");
+    const publicId = `recruiter:${crypto.randomUUID()}`;
+    const recruiter = buildManualRecruiter(args, publicId, Date.now());
+    await ctx.db.insert("recruiters", recruiter);
+    return { publicId };
   },
 });
 

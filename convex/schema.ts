@@ -105,6 +105,12 @@ export default defineSchema({
     evidenceLines: v.array(v.string()),
     profileStory: v.string(),
     source: v.optional(v.union(v.literal("resume"), v.literal("guided_intake"), v.literal("import"))),
+    // Provenance retained for the existing consented/public-example imports.
+    sourceKind: v.optional(v.string()),
+    sourceId: v.optional(v.string()),
+    sourceUrl: v.optional(v.string()),
+    sourcePage: v.optional(v.number()),
+    sourceChecksum: v.optional(v.string()),
     intakeStatus: v.optional(v.union(v.literal("incomplete"), v.literal("ready"))),
     embedding: v.optional(v.union(v.array(v.number()), v.null())),
     embeddingModel: v.optional(v.string()),
@@ -115,6 +121,7 @@ export default defineSchema({
 
   recruiters: defineTable({
     publicId: v.string(),
+    name: v.optional(v.string()),
     company: v.string(),
     roleToHire: v.string(),
     prioritySkills: v.array(v.string()),
@@ -124,7 +131,10 @@ export default defineSchema({
     workMode: v.string(),
     interviewFocus: v.array(v.string()),
     jobPublicId: v.optional(v.string()),
-    source: v.optional(v.literal("job")),
+    source: v.optional(v.union(v.literal("job"), v.literal("manual"))),
+    // Legacy recruiter records remain readable during migration.
+    isExample: v.optional(v.boolean()),
+    sourceKind: v.optional(v.string()),
     updatedAt: v.optional(v.number()),
   }).index("by_public_id", ["publicId"]).index("by_job_public_id", ["jobPublicId"]),
 
