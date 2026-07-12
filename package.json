@@ -1,0 +1,19 @@
+{
+  "name": "find-me-a-job-backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "convex dev",
+    "codegen": "convex dev --once",
+    "deploy": "convex deploy",
+    "seed": "convex run seed:seedDemo",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "convex": "^1.42.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "typescript": "^5.9.2"
+  }
+}
