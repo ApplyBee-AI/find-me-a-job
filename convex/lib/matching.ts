@@ -1,15 +1,37 @@
-type Job = {
-  publicId: string;
+export type Job = {
+  publicId?: string;
+  externalId?: string;
   company: string;
   title: string;
   location: string;
-  workMode: string;
+  workMode?: string;
+  isRemote?: boolean;
   skills: string[];
   experienceLevel: string;
-  minYearsExperience: number;
+  minYearsExperience?: number;
   description: string;
-  applyUrl: string;
-  highlights: string[];
+  applyUrl?: string;
+  applicationLink?: string;
+  jobUrl?: string;
+  highlights?: string[];
+  summary?: string;
+  requirements?: string;
+};
+
+export const isCanonicalJob = (value: unknown): value is Job => {
+  if (!value || typeof value !== "object") return false;
+  const job = value as Record<string, unknown>;
+  return typeof job.publicId === "string" &&
+    typeof job.applyUrl === "string" &&
+    typeof job.company === "string" &&
+    typeof job.title === "string" &&
+    typeof job.location === "string" &&
+    typeof job.workMode === "string" &&
+    typeof job.minYearsExperience === "number" &&
+    typeof job.description === "string" &&
+    Array.isArray(job.highlights) && job.highlights.every((highlight) => typeof highlight === "string") &&
+    Array.isArray(job.skills) && job.skills.every((skill) => typeof skill === "string") &&
+    typeof job.experienceLevel === "string";
 };
 
 type Applicant = {
@@ -110,7 +132,8 @@ const scoreExperience = (years: number, minYears: number) => {
 };
 
 const scoreLocationForJob = (applicant: Applicant, job: Job) => {
-  if (normalize(job.location) === "remote" || normalize(job.workMode).includes("remote")) {
+  const workMode = job.workMode ?? (job.isRemote ? "Remote" : "");
+  if (normalize(job.location) === "remote" || normalize(workMode).includes("remote")) {
     return applicant.remote ? 100 : 85;
   }
 
@@ -184,17 +207,24 @@ const buildNextStep = (missingSkills: string[], fallback: string) => {
 export const rankJobsForApplicant = (applicant: Applicant, jobs: Job[]): ApplicantJobMatch[] => {
   return jobs
     .map((job) => {
+      const jobId = job.publicId ?? job.externalId;
+      if (!jobId) {
+        throw new Error(`Job ${job.title} has no publicId or externalId`);
+      }
       const matchedSkills = overlap(applicant.skills, job.skills);
       const missingSkills = job.skills.filter(
         (skill) => !matchedSkills.some((matched) => normalize(matched) === normalize(skill)),
       );
       const skillMatch = percent((matchedSkills.length / Math.max(1, job.skills.length)) * 100);
       const roleMatch = scoreRoleAlignment(applicant.targetRoles, job.title);
-      const experienceMatch = scoreExperience(applicant.experienceYears, job.minYearsExperience);
+      const experienceMatch = scoreExperience(applicant.experienceYears, job.minYearsExperience ?? 0);
       const locationMatch = scoreLocationForJob(applicant, job);
+      const highlights = job.highlights ?? [job.summary, job.requirements].filter(
+        (value): value is string => Boolean(value),
+      );
       const semanticMatch = scoreSemanticRelevance(
         [applicant.resumeText, ...applicant.projects],
-        `${job.title} ${job.description} ${job.highlights.join(" ")}`,
+        `${job.title} ${job.description} ${highlights.join(" ")}`,
       );
       const score = percent(
         skillMatch * 0.4 +
@@ -206,7 +236,7 @@ export const rankJobsForApplicant = (applicant: Applicant, jobs: Job[]): Applica
 
       return {
         applicantId: applicant.publicId,
-        jobId: job.publicId,
+        jobId,
         score,
         reasons: {
           skillMatch,

@@ -1,6 +1,6 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
-import { rankCandidatesForRecruiter, rankJobsForApplicant } from "./lib/matching";
+import { type Job, isCanonicalJob, rankCandidatesForRecruiter, rankJobsForApplicant } from "./lib/matching";
 
 export const applicantToJobs = query({
   args: {
@@ -17,7 +17,8 @@ export const applicantToJobs = query({
       throw new Error(`Applicant ${args.applicantId} not found`);
     }
 
-    const jobs = await ctx.db.query("jobs").take(20);
+    const storedJobs = await ctx.db.query("jobs").take(100);
+    const jobs = storedJobs.filter(isCanonicalJob) as Job[];
     return rankJobsForApplicant(applicant, jobs).slice(0, args.limit ?? 5);
   },
 });

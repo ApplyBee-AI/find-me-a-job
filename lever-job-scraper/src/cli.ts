@@ -1,7 +1,12 @@
 import { mkdir, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { config } from 'dotenv';
 import pLimit from 'p-limit';
 import { discoverLeverJobUrls, enrichAndEmbed, fetchWithTimeout, normalizeJob, parseLeverJob, type LeverJob } from './lever.ts';
+
+// Always load the backend-owned configuration, even when this command is run from this child folder.
+config({ path: resolve(dirname(fileURLToPath(import.meta.url)), '../../.env') });
 
 const DEFAULT_COMPANIES = [
   'https://jobs.lever.co/applydigital',

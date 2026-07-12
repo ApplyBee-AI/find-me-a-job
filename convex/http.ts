@@ -184,4 +184,54 @@ http.route({
   }),
 });
 
+http.route({
+  path: "/runs",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const body = await parseBody(request);
+    if (!body || (body.actor !== "applicant" && body.actor !== "recruiter") || typeof body.personaId !== "string") return badRequest("Body requires actor ('applicant'|'recruiter') and personaId.");
+    try { return json(await ctx.runMutation(api.runs.start, { actor: body.actor, personaId: body.personaId, selectedMatchId: typeof body.selectedMatchId === "string" ? body.selectedMatchId : undefined })); }
+    catch (error) { return badRequest(error instanceof Error ? error.message : "Unable to start run", 404); }
+  }),
+});
+
+http.route({
+  pathPrefix: "/runs/",
+  method: "GET",
+  handler: httpAction(async (ctx, request) => {
+    const path = new URL(request.url).pathname;
+    const runId = lastSegment(request, path.endsWith("/logs") ? 2 : 1);
+    try {
+      const result = path.endsWith("/logs") ? await ctx.runQuery(api.runs.getLogs, { runId }) : await ctx.runQuery(api.runs.get, { runId });
+      return result ? json(result) : badRequest(`Run ${runId} not found`, 404);
+    } catch (error) { return badRequest(error instanceof Error ? error.message : "Unable to read run", 500); }
+  }),
+});
+
+http.route({
+  pathPrefix: "/runs/",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const path = new URL(request.url).pathname;
+    const runId = lastSegment(request, 2);
+    if (!path.endsWith("/execute") && !path.endsWith("/rerun")) return badRequest("Unsupported run POST route.", 404);
+    try {
+      const result = path.endsWith("/execute") ? await ctx.runAction(api.runs.execute, { runId }) : await ctx.runAction(api.runs.rerun, { priorRunId: runId });
+      return json(result);
+    } catch (error) { return badRequest(error instanceof Error ? error.message : "Unable to execute run", 500); }
+  }),
+});
+
+http.route({
+  pathPrefix: "/evaluations/",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    const path = new URL(request.url).pathname;
+    if (!path.endsWith("/run")) return badRequest("Unsupported evaluation POST route.", 404);
+    const scenarioId = lastSegment(request, 2);
+    try { return json(await ctx.runAction(api.evaluations.run, { scenarioId })); }
+    catch (error) { return badRequest(error instanceof Error ? error.message : "Unable to run evaluation", 500); }
+  }),
+});
+
 export default http;

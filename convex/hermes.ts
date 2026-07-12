@@ -1,5 +1,5 @@
-import { action } from "./_generated/server";
-import { api } from "./_generated/api";
+import { action, internalAction } from "./_generated/server";
+import { api, internal } from "./_generated/api";
 import { env } from "./_generated/server";
 import { v } from "convex/values";
 import {
@@ -91,7 +91,10 @@ export const askApplicant = action({
 
     const fallbackAnswer = buildApplicantFallbackAnswer(
       applicantResult,
-      job,
+      {
+        ...job,
+        description: job.description ?? [job.summary, job.requirements].filter(Boolean).join("\n"),
+      },
       selectedMatch,
       args.query,
     );
@@ -312,5 +315,88 @@ export const askRecruiter = action({
       selectedMatch,
       topMatches: matchResult.matches.slice(0, 3),
     };
+  },
+});
+
+type RunExplanation = {
+  summary: string;
+  nextAction: string;
+  confidence: "high" | "medium" | "low";
+  mode: "gateway" | "openai" | "fallback";
+  needsReview: boolean;
+};
+
+const isRunExplanation = (value: unknown): value is Pick<RunExplanation, "summary" | "nextAction" | "confidence"> => {
+  if (!value || typeof value !== "object") return false;
+  const candidate = value as Record<string, unknown>;
+  return typeof candidate.summary === "string" && candidate.summary.length > 0 &&
+    typeof candidate.nextAction === "string" && candidate.nextAction.length > 0 &&
+    (candidate.confidence === "high" || candidate.confidence === "medium" || candidate.confidence === "low");
+};
+
+const fallbackRunExplanation = (ranking: { matches?: Array<Record<string, unknown>> }): RunExplanation => {
+  const top = ranking.matches?.[0];
+  if (!top) {
+    return { summary: "No stored match evidence is available to explain.", nextAction: "Review the selected persona and seeded or imported records.", confidence: "low", mode: "fallback", needsReview: true };
+  }
+  const score = typeof top.score === "number" ? `${top.score}%` : "the stored score";
+  const summary = typeof top.summary === "string" ? top.summary : "The highest deterministic match is ready for review.";
+  const nextAction = typeof top.nextStep === "string" ? top.nextStep : "Review the stored evidence before taking the next step.";
+  return { summary: `${summary} Deterministic score: ${score}.`, nextAction, confidence: typeof top.score === "number" && top.score >= 80 ? "high" : "medium", mode: "fallback", needsReview: false };
+};
+
+const timeoutFetch = async (url: string, init: RequestInit, timeoutMs = 8_000) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
+export const explainRun = internalAction({
+  args: { runId: v.string() },
+  handler: async (ctx, args): Promise<RunExplanation> => {
+    const run = await ctx.runQuery(internal.runs.getForExecution, { runId: args.runId });
+    if (!run) throw new Error(`Run ${args.runId} not found`);
+    const ranking = run.rankingJson ? JSON.parse(run.rankingJson) as { matches?: Array<Record<string, unknown>> } : {};
+    const fallback = fallbackRunExplanation(ranking);
+    let explanation = fallback;
+    const compactContext = { runId: run.runId, actor: run.actor, personaId: run.personaId, ranking: { matches: ranking.matches?.slice(0, 3) ?? [] }, task: "Explain only the supplied deterministic ranking evidence. Do not alter ranks, scores, or profile facts." };
+
+    try {
+      const gatewayUrl = process.env.HERMES_GATEWAY_URL;
+      if (gatewayUrl) {
+        const response = await timeoutFetch(`${gatewayUrl.replace(/\/$/, "")}/v1/explain-run`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", ...(process.env.HERMES_GATEWAY_TOKEN ? { Authorization: `Bearer ${process.env.HERMES_GATEWAY_TOKEN}` } : {}) },
+          body: JSON.stringify(compactContext),
+        });
+        const payload = response.ok ? await response.json() : null;
+        if (isRunExplanation(payload)) explanation = { ...payload, mode: "gateway", needsReview: false };
+      } else if (env.OPENAI_API_KEY) {
+        const response = await timeoutFetch("https://api.openai.com/v1/responses", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${env.OPENAI_API_KEY}`, "Content-Type": "application/json" },
+          body: JSON.stringify({ model: process.env.HERMES_MODEL ?? "gpt-4.1", input: `Return JSON only with summary, nextAction, and confidence (high|medium|low). ${JSON.stringify(compactContext)}` }),
+        });
+        const payload = response.ok ? await response.json() as ResponseApiResult : null;
+        const text = payload ? extractOutputText(payload) : null;
+        if (text) {
+          try {
+            const parsed = JSON.parse(text);
+            if (isRunExplanation(parsed)) explanation = { ...parsed, mode: "openai", needsReview: false };
+          } catch {
+            // Invalid model output preserves the deterministic fallback.
+          }
+        }
+      }
+    } catch {
+      // Gateway and model errors are non-fatal: deterministic ranking remains the product result.
+    }
+
+    await ctx.runMutation(internal.runs.storeExplanation, { runId: run.runId, outputJson: JSON.stringify(explanation), needsReview: explanation.needsReview });
+    return explanation;
   },
 });

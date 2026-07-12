@@ -1,186 +1,73 @@
 # Find Me a Job Backend
 
-Convex backend for the hackathon demo. This service keeps deterministic job and candidate matching as the source of truth, then uses Hermes as the explanation and follow-up layer.
+Convex modular-monolith backend for the hackathon demo. Matching is deterministic and persisted first; Hermes only explains stored evidence.
 
-## What This Backend Does
+## Local configuration
 
-- Stores seeded demo data for jobs, applicants, and recruiter personas.
-- Computes deterministic matches with a visible score breakdown.
-- Exposes applicant and recruiter APIs for the UI.
-- Uses Hermes to explain rankings, missing skills, and next steps.
-- Persists lightweight session memory and run logs in Convex.
+Use only `D:\Projects\find-me-a-job\.env`. Preserve the existing `OPENAI_API_KEY`, `CONVEX_DEPLOYMENT`, `CONVEX_URL`, and `CONVEX_SITE_URL` values. Optional keys are `HERMES_MODEL` and `OPENAI_EMBEDDING_MODEL`.
 
-## Architecture
+Do not create `.env.local`, including in the UI repo. Convex actions run remotely and cannot use a laptop-local gateway. Set runtime secrets separately after login, without printing values:
 
-- `Convex` is the system of record for demo state, memory, and logs.
-- `Matching engine` is deterministic and returns score reasons first.
-- `Hermes gateway` sits on top of those results and handles natural-language explanations.
-- `HTTP endpoints` in [`convex/http.ts`](D:\Projects\find-me-a-job\convex\http.ts) are the integration surface for the UI.
-
-This follows the UI repo contract in `find-me-a-job-UI-Repo/docs/Architecture.md` and `find-me-a-job-UI-Repo/docs/Features.md`:
-
-- Modular monolith over microservices.
-- Deterministic ranking before LLM explanation.
-- Persisted run state and logs for judge-visible demo evidence.
-
-## Tables
-
-- `jobs`: normalized role records for applicant matching
-- `applicants`: seeded candidate personas and resume evidence
-- `recruiters`: seeded hiring stories and skill priorities
-- `sessions`: current role, persona, last query, selected match, last run
-- `runLogs`: Hermes activity trail for observability
-
-## Match Response Shape
-
-Applicant-to-job and recruiter-to-candidate matches use this shape:
-
-```json
-{
-  "score": 86,
-  "summary": "Strong fit for Backend Engineer roles.",
-  "matchedSkills": ["Python", "FastAPI", "Docker"],
-  "missingSkills": ["AWS", "PostgreSQL"],
-  "nextStep": "Highlight or build evidence for AWS and PostgreSQL next."
-}
+```powershell
+npx convex env set OPENAI_API_KEY
+npx convex env set HERMES_MODEL
+npx convex env set OPENAI_EMBEDDING_MODEL
 ```
 
-Each record also includes a `reasons` object:
+`HERMES_GATEWAY_URL` and `HERMES_GATEWAY_TOKEN` are optional secured Convex runtime settings. When unavailable, the backend uses its grounded OpenAI/fallback path. No resume embeddings or vector similarity are active.
 
-```json
-{
-  "skillMatch": 92,
-  "roleMatch": 90,
-  "experienceMatch": 75,
-  "locationMatch": 100,
-  "semanticMatch": 78
-}
-```
+## Setup and verification
 
-## Hermes Gateway
-
-Hermes is implemented in [`convex/hermes.ts`](D:\Projects\find-me-a-job\convex\hermes.ts).
-
-Inputs:
-
-- current role
-- selected applicant or recruiter persona
-- deterministic top matches
-- selected job or candidate
-- user query
-
-Behavior:
-
-- explains why a match scored well or poorly
-- suggests missing skills or resume improvements
-- recommends recruiter interview prompts
-- persists session memory and run logs
-
-If `OPENAI_API_KEY` is available in Convex env, Hermes calls the OpenAI Responses API. If the key is missing or the model call fails, the backend falls back to grounded deterministic responses so the demo still works.
-
-## HTTP API
-
-Applicant:
-
-- `GET /applicants`
-- `GET /applicants/{id}`
-- `GET /applicants/{id}/job-matches`
-- `POST /applicants/{id}/ask-agent`
-
-Recruiter:
-
-- `GET /recruiters`
-- `GET /recruiters/{id}`
-- `GET /recruiters/{id}/candidate-matches`
-- `POST /recruiters/{id}/ask-agent`
-
-Shared:
-
-- `POST /match/applicant-to-jobs`
-- `POST /match/recruiter-to-candidates`
-
-Utility:
-
-- `GET /health`
-- `POST /seed`
-
-Example applicant agent request:
-
-```json
-{
-  "query": "Why is this only a 72% match?",
-  "selectedJobId": "job_101"
-}
-```
-
-Example recruiter agent request:
-
-```json
-{
-  "query": "Why is Candidate 7 ranked first?",
-  "selectedCandidateId": "candidate_07"
-}
-```
-
-## Local Setup
-
-1. Install dependencies:
-
-```bash
+```powershell
 npm install
+npm run codegen
+npm run typecheck
+npm test
+npm test --prefix lever-job-scraper
 ```
 
-2. Initialize or link this repo to a Convex project:
+`npm run codegen` may generate a local Convex `.env.local`; remove it and retain only `.env` after generation.
 
-```bash
-npx convex dev
+## Lever import
+
+The scraper loads the parent backend `.env` explicitly when invoked from `lever-job-scraper`. It does not need live scraping for the demo.
+
+```powershell
+npm run import:lever -- --input .\path\to\output\lever\manifest.json
 ```
 
-This step generates `convex/_generated/*` and prompts you to create or select the Convex project.
+The importer accepts a manifest with `jobs` or one canonical Lever job JSON file. It upserts by `platform + externalJobId`, preserves `embedding` exactly (including `null`), and prints `inserted`, `updated`, `skipped`, and `invalid` counts. Imported jobs retain the existing matching fields and normalized source fields.
 
-3. Set backend env in Convex:
+## Run orchestration
 
-- `OPENAI_API_KEY`
-- optional: `HERMES_MODEL` (defaults to `gpt-4.1`)
+`run-manager -> matching-specialist -> hermes-explainer` communicate only through persisted Convex records.
 
-4. Seed the demo data:
+- `runs`: immutable input snapshot, status, rankings, explanations, errors
+- `toolCalls`: named specialist execution evidence
+- `runLogs`: human-readable handoffs by run, agent, and task
+- `evaluations`: seeded reproducible scenario results
 
-```bash
+Matching is deterministic and never calls a model. Hermes receives only persisted ranking evidence and cannot alter scores, ranks, or source data. Explanation failure stores a grounded fallback while the completed ranking remains usable.
+
+## HTTP routes
+
+Existing applicant, recruiter, match, seed, and health routes remain unchanged. New routes return JSON:
+
+- `POST /runs` with `{ "actor": "applicant"|"recruiter", "personaId": "..." }`
+- `POST /runs/{runId}/execute`
+- `GET /runs/{runId}`
+- `GET /runs/{runId}/logs`
+- `POST /runs/{runId}/rerun`
+- `POST /evaluations/{scenarioId}/run`
+
+## Demo commands
+
+```powershell
 npm run seed
+# POST /runs with candidate_07 or recruiter_03
+# POST /runs/{runId}/execute
+# POST /evaluations/applicant-to-job-v1/run
+# POST /evaluations/recruiter-to-candidate-v1/run
 ```
 
-5. Run the backend locally:
-
-```bash
-npm run dev
-```
-
-## Frontend Integration Notes
-
-- The UI can call the HTTP routes directly once Convex is running.
-- Applicant pages should use `candidate_07` for the strongest demo path.
-- Recruiter pages should use `recruiter_03` for the strongest Hermes explanation path.
-- Run logs can be queried from the `runLogs` table during the demo to show memory and orchestration evidence.
-
-## Repo Layout
-
-```text
-convex/
-├── applicants.ts
-├── hermes.ts
-├── http.ts
-├── jobs.ts
-├── logs.ts
-├── matching.ts
-├── recruiters.ts
-├── schema.ts
-├── seed.ts
-├── sessions.ts
-└── lib/
-    ├── matching.ts
-    └── seedData.ts
-```
-
-## Current Limitation
-
-This repo does not include checked-in Convex generated files yet. Run `npx convex dev` once after linking the project so `convex/_generated` is created before typechecking or deployment.
+The stable evaluation expectations are `candidate_07 -> job_102` and `recruiter_03 -> candidate_07`.

@@ -7,13 +7,17 @@
     "codegen": "convex dev --once",
     "deploy": "convex deploy",
     "seed": "convex run seed:seedDemo",
+    "import:lever": "tsx scripts/import-lever.ts",
+    "test": "tsx --test tests/applicant-matching.test.ts tests/applicantProfile.test.ts tests/importer.test.ts tests/matching.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "convex": "^1.42.1"
+    "convex": "^1.42.1",
+    "dotenv": "^17.4.2"
   },
   "devDependencies": {
     "@types/node": "^24.0.0",
+    "tsx": "^4.23.0",
     "typescript": "^5.9.2"
   }
 }

@@ -1,75 +1,43 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
-import { applicants, jobs, recruiters } from "./lib/seedData";
 
+const legacyApplicantIds = new Set(["candidate_07", "candidate_03", "candidate_11"]);
+const legacyRecruiterIds = new Set(["recruiter_03", "recruiter_04", "recruiter_05"]);
+
+// Kept for the legacy /seed endpoint. Production data is never fabricated here.
 export const seedDemo = mutation({
   args: { force: v.optional(v.boolean()) },
-  handler: async (ctx, args) => {
-    if (args.force) {
-      const runLogs = await ctx.db.query("runLogs").take(256);
-      for (const row of runLogs) {
-        await ctx.db.delete("runLogs", row._id);
-      }
+  handler: async (_ctx) => ({
+    seeded: false,
+    message: "No demo profiles are seeded. Submit a resume or import consented applicant data.",
+  }),
+});
 
-      const sessions = await ctx.db.query("sessions").take(256);
-      for (const row of sessions) {
-        await ctx.db.delete("sessions", row._id);
-      }
-
-      const jobRows = await ctx.db.query("jobs").take(256);
-      for (const row of jobRows) {
-        await ctx.db.delete("jobs", row._id);
-      }
-
-      const applicantRows = await ctx.db.query("applicants").take(256);
-      for (const row of applicantRows) {
-        await ctx.db.delete("applicants", row._id);
-      }
-
-      const recruiterRows = await ctx.db.query("recruiters").take(256);
-      for (const row of recruiterRows) {
-        await ctx.db.delete("recruiters", row._id);
-      }
-    }
-
-    for (const job of jobs) {
-      const existing = await ctx.db
-        .query("jobs")
-        .withIndex("by_public_id", (q) => q.eq("publicId", job.publicId))
-        .unique();
-
-      if (!existing) {
-        await ctx.db.insert("jobs", job);
-      }
-    }
+export const removeLegacyDemoData = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const applicants = await ctx.db.query("applicants").take(250);
+    const recruiters = await ctx.db.query("recruiters").take(250);
+    const jobs = await ctx.db.query("jobs").take(250);
+    const runs = await ctx.db.query("runs").take(250);
 
     for (const applicant of applicants) {
-      const existing = await ctx.db
-        .query("applicants")
-        .withIndex("by_public_id", (q) => q.eq("publicId", applicant.publicId))
-        .unique();
-
-      if (!existing) {
-        await ctx.db.insert("applicants", applicant);
-      }
+      if (legacyApplicantIds.has(applicant.publicId)) await ctx.db.delete("applicants", applicant._id);
     }
-
     for (const recruiter of recruiters) {
-      const existing = await ctx.db
-        .query("recruiters")
-        .withIndex("by_public_id", (q) => q.eq("publicId", recruiter.publicId))
-        .unique();
-
-      if (!existing) {
-        await ctx.db.insert("recruiters", recruiter);
-      }
+      if (legacyRecruiterIds.has(recruiter.publicId)) await ctx.db.delete("recruiters", recruiter._id);
+    }
+    for (const job of jobs) {
+      if (typeof job.publicId === "string" && /^job_\d+$/.test(job.publicId)) await ctx.db.delete("jobs", job._id);
+    }
+    for (const run of runs) {
+      if (legacyApplicantIds.has(run.personaId) || legacyRecruiterIds.has(run.personaId)) await ctx.db.delete("runs", run._id);
     }
 
     return {
-      seeded: true,
-      jobs: jobs.length,
-      applicants: applicants.length,
-      recruiters: recruiters.length,
+      applicantsRemoved: applicants.filter((row) => legacyApplicantIds.has(row.publicId)).length,
+      recruitersRemoved: recruiters.filter((row) => legacyRecruiterIds.has(row.publicId)).length,
+      jobsRemoved: jobs.filter((row) => typeof row.publicId === "string" && /^job_\d+$/.test(row.publicId)).length,
     };
   },
 });

@@ -1,10 +1,10 @@
 import * as assert from "node:assert/strict";
-import * as test from "node:test";
+import { test } from "node:test";
 import {
   classifyUpsert,
   mapLeverJob,
   type LeverJobInput,
-} from "../convex/lib/leverImport.ts";
+} from "../convex/lib/leverImport";
 
 const leverJob: LeverJobInput = {
   id: "source-uuid",
