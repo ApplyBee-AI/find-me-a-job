@@ -16,6 +16,7 @@ export type Job = {
   highlights?: string[];
   summary?: string;
   requirements?: string;
+  isActive?: boolean;
 };
 
 export const isCanonicalJob = (value: unknown): value is Job => {
@@ -206,6 +207,7 @@ const buildNextStep = (missingSkills: string[], fallback: string) => {
 
 export const rankJobsForApplicant = (applicant: Applicant, jobs: Job[]): ApplicantJobMatch[] => {
   return jobs
+    .filter((job) => job.isActive !== false)
     .map((job) => {
       const jobId = job.publicId ?? job.externalId;
       if (!jobId) {

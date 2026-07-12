@@ -8,7 +8,7 @@
     "deploy": "convex deploy",
     "seed": "convex run seed:seedDemo",
     "import:lever": "tsx scripts/import-lever.ts",
-    "test": "tsx --test tests/applicant-matching.test.ts tests/applicantProfile.test.ts tests/importer.test.ts tests/matching.test.ts",
+    "test": "tsx --test tests/applicant-matching.test.ts tests/applicantProfile.test.ts tests/importer.test.ts tests/jobNormalization.test.ts tests/matching.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
