@@ -55,6 +55,14 @@ export default defineSchema({
     projects: v.array(v.string()),
     evidenceLines: v.array(v.string()),
     profileStory: v.string(),
+    embedding: v.optional(v.array(v.number())),
+    embeddingModel: v.optional(v.string()),
+    embeddingVersion: v.optional(v.string()),
+    sourceKind: v.optional(v.string()),
+    sourceId: v.optional(v.string()),
+    sourceUrl: v.optional(v.string()),
+    sourcePage: v.optional(v.number()),
+    sourceChecksum: v.optional(v.string()),
   }).index("by_public_id", ["publicId"]),
 
   recruiters: defineTable({
@@ -67,6 +75,9 @@ export default defineSchema({
     location: v.string(),
     workMode: v.string(),
     interviewFocus: v.array(v.string()),
+    name: v.optional(v.string()),
+    isExample: v.optional(v.boolean()),
+    sourceKind: v.optional(v.string()),
   }).index("by_public_id", ["publicId"]),
 
   sessions: defineTable({

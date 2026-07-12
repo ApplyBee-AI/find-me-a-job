@@ -1,6 +1,21 @@
-import { query } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { rankCandidatesForRecruiter } from "./lib/matching";
+
+const recruiterFields = {
+  publicId: v.string(),
+  name: v.optional(v.string()),
+  company: v.string(),
+  roleToHire: v.string(),
+  prioritySkills: v.array(v.string()),
+  niceToHave: v.array(v.string()),
+  story: v.string(),
+  location: v.string(),
+  workMode: v.string(),
+  interviewFocus: v.array(v.string()),
+  isExample: v.optional(v.boolean()),
+  sourceKind: v.optional(v.string()),
+};
 
 export const list = query({
   args: { limit: v.optional(v.number()) },
@@ -16,6 +31,31 @@ export const getByPublicId = query({
       .query("recruiters")
       .withIndex("by_public_id", (q) => q.eq("publicId", args.publicId))
       .unique();
+  },
+});
+
+export const importDemoRecruiters = mutation({
+  args: { recruiters: v.array(v.object(recruiterFields)) },
+  handler: async (ctx, args) => {
+    let imported = 0;
+    let updated = 0;
+
+    for (const recruiter of args.recruiters) {
+      const existing = await ctx.db
+        .query("recruiters")
+        .withIndex("by_public_id", (query) => query.eq("publicId", recruiter.publicId))
+        .unique();
+
+      if (existing) {
+        await ctx.db.patch(existing._id, recruiter);
+        updated += 1;
+      } else {
+        await ctx.db.insert("recruiters", recruiter);
+        imported += 1;
+      }
+    }
+
+    return { imported, updated };
   },
 });
 

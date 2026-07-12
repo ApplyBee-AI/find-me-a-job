@@ -4,6 +4,30 @@ import { env } from "./_generated/server";
 import { v } from "convex/values";
 import { rankJobsForApplicant } from "./lib/matching";
 
+const applicantFields = {
+  publicId: v.string(),
+  name: v.string(),
+  targetRoles: v.array(v.string()),
+  skills: v.array(v.string()),
+  resumeText: v.string(),
+  location: v.string(),
+  remote: v.boolean(),
+  experienceYears: v.number(),
+  education: v.string(),
+  availability: v.string(),
+  projects: v.array(v.string()),
+  evidenceLines: v.array(v.string()),
+  profileStory: v.string(),
+  embedding: v.optional(v.array(v.number())),
+  embeddingModel: v.optional(v.string()),
+  embeddingVersion: v.optional(v.string()),
+  sourceKind: v.optional(v.string()),
+  sourceId: v.optional(v.string()),
+  sourceUrl: v.optional(v.string()),
+  sourcePage: v.optional(v.number()),
+  sourceChecksum: v.optional(v.string()),
+};
+
 export const list = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
@@ -47,21 +71,7 @@ export const getJobMatches = query({
 });
 
 export const upsertApplicant = mutation({
-  args: {
-    publicId: v.string(),
-    name: v.string(),
-    targetRoles: v.array(v.string()),
-    skills: v.array(v.string()),
-    resumeText: v.string(),
-    location: v.string(),
-    remote: v.boolean(),
-    experienceYears: v.number(),
-    education: v.string(),
-    availability: v.string(),
-    projects: v.array(v.string()),
-    evidenceLines: v.array(v.string()),
-    profileStory: v.string(),
-  },
+  args: applicantFields,
   handler: async (ctx, args) => {
     const existing = await ctx.db
       .query("applicants")
@@ -74,6 +84,31 @@ export const upsertApplicant = mutation({
     } else {
       return await ctx.db.insert("applicants", args);
     }
+  },
+});
+
+export const importPublicExamples = mutation({
+  args: { applicants: v.array(v.object(applicantFields)) },
+  handler: async (ctx, args) => {
+    let imported = 0;
+    let updated = 0;
+
+    for (const applicant of args.applicants) {
+      const existing = await ctx.db
+        .query("applicants")
+        .withIndex("by_public_id", (query) => query.eq("publicId", applicant.publicId))
+        .unique();
+
+      if (existing) {
+        await ctx.db.patch(existing._id, applicant);
+        updated += 1;
+      } else {
+        await ctx.db.insert("applicants", applicant);
+        imported += 1;
+      }
+    }
+
+    return { imported, updated };
   },
 });
 

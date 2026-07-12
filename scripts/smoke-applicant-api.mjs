@@ -35,7 +35,12 @@ assert(health.ok === true, "Health check did not return ok=true.");
 
 const applicants = await request("/applicants");
 assert(Array.isArray(applicants) && applicants.length > 0, "No applicant profiles are available.");
-const applicantId = applicants[0].publicId;
+const requestedApplicantId = process.argv[2];
+const applicantId = requestedApplicantId ?? applicants[0].publicId;
+assert(
+  applicants.some((applicant) => applicant.publicId === applicantId),
+  `Applicant ${applicantId} is not available.`,
+);
 
 const applicant = await request(`/applicants/${encodeURIComponent(applicantId)}`);
 assert(applicant.publicId === applicantId, "Applicant lookup returned the wrong profile.");
